@@ -98,6 +98,7 @@ type TranslationSet struct {
 	LcMoveUpCommit                      string
 	LcEditCommit                        string
 	LcAmendToCommit                     string
+	LcEditCommitAuthor                  string
 	LcRenameCommitEditor                string
 	NoCommitsThisBranch                 string
 	Error                               string
@@ -516,6 +517,7 @@ type Actions struct {
 	RewordCommit                      string
 	DropCommit                        string
 	EditCommit                        string
+	EditCommitAuthor                  string
 	AmendCommit                       string
 	RevertCommit                      string
 	CreateFixupCommit                 string
@@ -698,6 +700,7 @@ func EnglishTranslationSet() TranslationSet {
 		LcMoveUpCommit:                      "move commit up one",
 		LcEditCommit:                        "edit commit",
 		LcAmendToCommit:                     "amend commit with staged changes",
+		LcEditCommitAuthor:                  "change the commit author",
 		LcRenameCommitEditor:                "reword commit with editor",
 		Error:                               "Error",
 		LcSelectHunk:                        "select hunk",
@@ -1097,6 +1100,7 @@ func EnglishTranslationSet() TranslationSet {
 			RewordCommit:                      "Reword commit",
 			DropCommit:                        "Drop commit",
 			EditCommit:                        "Edit commit",
+			EditCommitAuthor:                  "Edit commit author",
 			AmendCommit:                       "Amend commit",
 			RevertCommit:                      "Revert commit",
 			CreateFixupCommit:                 "Create fixup commit",

@@ -122,6 +122,11 @@ func (self *LocalCommitsController) GetKeybindings(opts types.KeybindingsOpts) [
 			Description: self.c.Tr.LcAmendToCommit,
 		},
 		{
+			Key:         opts.GetKey(opts.Config.Commits.EditCommitAuthor),
+			Handler:     self.checkSelected(self.editAuthor),
+			Description: self.c.Tr.LcEditCommitAuthor,
+		},
+		{
 			Key:         opts.GetKey(opts.Config.Commits.RevertCommit),
 			Handler:     self.checkSelected(self.revert),
 			Description: self.c.Tr.LcRevertCommit,
@@ -414,6 +419,34 @@ func (self *LocalCommitsController) amendTo(commit *models.Commit) error {
 				err := self.git.Rebase.AmendTo(commit.Sha)
 				return self.helpers.MergeAndRebase.CheckMergeOrRebase(err)
 			})
+		},
+	})
+}
+
+func (self *LocalCommitsController) editAuthor(commit *models.Commit) error {
+	applied, err := self.handleMidRebaseCommand("reword", commit)
+	if err != nil {
+		return err
+	}
+	if applied {
+		return nil
+	}
+
+	author, err := self.git.Commit.GetCommitAuthor(commit.Sha)
+	if err != nil {
+		return self.c.Error(err)
+	}
+
+	return self.c.Prompt(types.PromptOpts{
+		Title:          self.c.Tr.LcEditCommitAuthor,
+		InitialContent: author,
+		HandleConfirm: func(response string) error {
+			self.c.LogAction(self.c.Tr.Actions.EditCommitAuthor)
+			if err := self.git.Rebase.EditCommitAuthor(self.model.Commits, self.context().GetSelectedLineIdx(), response); err != nil {
+				return self.c.Error(err)
+			}
+
+			return self.c.Refresh(types.RefreshOptions{Mode: types.ASYNC})
 		},
 	})
 }

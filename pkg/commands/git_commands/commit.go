@@ -22,6 +22,11 @@ func (self *CommitCommands) RewordLastCommit(message string) error {
 	return self.cmd.New("git commit --allow-empty --amend --only -m " + self.cmd.Quote(message)).Run()
 }
 
+// Amend the topmost commit to change the author, expect something in the format "Author Name <email@address.com>"
+func (self *CommitCommands) AmendAuthor(author string) error {
+	return self.cmd.New("git commit --allow-empty --no-edit --amend --author=" + self.cmd.Quote(author)).Run()
+}
+
 // ResetToCommit reset to commit
 func (self *CommitCommands) ResetToCommit(sha string, strength string, envVars []string) error {
 	return self.cmd.New(fmt.Sprintf("git reset --%s %s", strength, sha)).
@@ -69,6 +74,13 @@ func (self *CommitCommands) GetHeadCommitMessage() (string, error) {
 
 func (self *CommitCommands) GetCommitMessage(commitSha string) (string, error) {
 	cmdStr := "git rev-list --format=%B --max-count=1 " + commitSha
+	messageWithHeader, err := self.cmd.New(cmdStr).DontLog().RunWithOutput()
+	message := strings.Join(strings.SplitAfter(messageWithHeader, "\n")[1:], "")
+	return strings.TrimSpace(message), err
+}
+
+func (self *CommitCommands) GetCommitAuthor(commitSha string) (string, error) {
+	cmdStr := "git rev-list --format='%an <%ae>' --max-count=1 " + commitSha
 	messageWithHeader, err := self.cmd.New(cmdStr).DontLog().RunWithOutput()
 	message := strings.Join(strings.SplitAfter(messageWithHeader, "\n")[1:], "")
 	return strings.TrimSpace(message), err
